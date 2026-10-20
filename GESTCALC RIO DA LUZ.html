@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calculadora Gestacional Unificada</title>
+  <style>
+    :root {
+      --primary: #4CAF50;
+      --background: #f4f4f4;
+      --text: #333;
+      --card-bg: #fff;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+    }
+
+    .tabs button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: #e0e0e0;
+      color: #333;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 10px 10px 0 0;
+      transition: 0.3s;
+    }
+
+    .tabs button.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    label {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    button.calc-btn {
+      background: var(--primary);
+      color: white;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button.calc-btn:hover {
+      background: #45a049;
+    }
+
+    .resultado {
+      margin-top: 20px;
+      font-weight: bold;
+      background: #e8f5e9;
+      padding: 15px;
+      border-radius: 10px;
+      color: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Calculadora Gestacional<br>Rio da Luz</h1>
+
+    <div class="tabs">
+      <button id="tabDUM" class="active" onclick="mostrar('dum')">📅 DUM</button>
+      <button id="tabUSG" onclick="mostrar('usg')">🧪 Ultrassom</button>
+    </div>
+
+    <!-- Seção DUM -->
+    <div id="dum" class="form-section active">
+      <label for="dataDUM">Data da Última Menstruação (DUM):</label>
+      <input type="date" id="dataDUM">
+      <button class="calc-btn" onclick="calcularPorDUM()">Calcular</button>
+      <div class="resultado" id="resultadoDUM"></div>
+    </div>
+
+    <!-- Seção Ultrassom -->
+    <div id="usg" class="form-section">
+      <label for="dataUltrassom">Data do Ultrassom:</label>
+      <input type="date" id="dataUltrassom">
+
+      <label for="semanas">Semanas (na data do USG):</label>
+      <input type="number" id="semanas" min="0">
+
+      <label for="dias">Dias (na data do USG):</label>
+      <input type="number" id="dias" min="0" max="6">
+
+      <button class="calc-btn" onclick="calcularPorUltrassom()">Calcular</button>
+      <div class="resultado" id="resultadoUSG"></div>
+    </div>
+
+  </div>
+
+  <script>
+    function mostrar(secao) {
+      document.getElementById('dum').classList.remove('active');
+      document.getElementById('usg').classList.remove('active');
+      document.getElementById('tabDUM').classList.remove('active');
+      document.getElementById('tabUSG').classList.remove('active');
+
+      if (secao === 'dum') {
+        document.getElementById('dum').classList.add('active');
+        document.getElementById('tabDUM').classList.add('active');
+      } else {
+        document.getElementById('usg').classList.add('active');
+        document.getElementById('tabUSG').classList.add('active');
+      }
+    }
+
+    function calcularPorDUM() {
+      const dataDUM = new Date(document.getElementById('dataDUM').value);
+      const hoje = new Date();
+      const diffDias = Math.floor((hoje - dataDUM) / (1000 * 60 * 60 * 24));
+
+      if (isNaN(dataDUM.getTime()) || diffDias < 0) {
+        document.getElementById('resultadoDUM').innerText = "Selecione uma DUM válida.";
+        return;
+      }
+
+      const semanas = Math.floor(diffDias / 7);
+      const dias = diffDias % 7;
+
+      const dpp = new Date(dataDUM);
+      dpp.setDate(dpp.getDate() + 281);
+
+      document.getElementById('resultadoDUM').innerHTML = `<center>
+        📅 <strong>Situação em ${hoje.toLocaleDateString()}</strong><br>
+       <br> 👶 Idade Gestacional:<br> <strong>${semanas} semanas e ${dias} dias</strong><br><br>
+        🍼 Data Provável do Parto (DPP):<br>
+        <strong>${dpp.toLocaleDateString()}</strong>
+     </center> `;
+    }
+
+    function calcularPorUltrassom() {
+      const dataUSG = new Date(document.getElementById('dataUltrassom').value);
+      const semanas = parseInt(document.getElementById('semanas').value);
+      const dias = parseInt(document.getElementById('dias').value);
+      const hoje = new Date();
+
+      if (isNaN(dataUSG.getTime()) || isNaN(semanas) || isNaN(dias)) {
+        document.getElementById('resultadoUSG').innerText = "Preencha todos os campos corretamente.";
+        return;
+      }
+
+      const diffDias = Math.floor((hoje - dataUSG) / (1000 * 60 * 60 * 24));
+      const idadeTotal = (semanas * 7 + dias) + diffDias;
+      const idadeSemanas = Math.floor(idadeTotal / 7);
+      const idadeDias = idadeTotal % 7;
+
+      const dpp = new Date(dataUSG);
+      dpp.setDate(dpp.getDate() + (281 - (semanas * 7 + dias)));
+
+      document.getElementById('resultadoUSG').innerHTML = `<center>
+        📅 <strong>Situação em ${hoje.toLocaleDateString()}</strong><br>
+       <br> 👶 Idade Gestacional:<br> <strong>${idadeSemanas} semanas e ${idadeDias} dias</strong><br><br>
+        🍼 Data Provável do Parto (DPP):<br>
+        <strong>${dpp.toLocaleDateString()}</strong>
+      </center>`;
+    }
+  </script>
+
+</body>
+</html>
